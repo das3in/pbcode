@@ -9,6 +9,7 @@ class Tool extends Component {
       activePlayer: null,
       activeTeam: null,
       action: null,
+      winner: '',
       result: null,
       optional: null,
       secondsRemaining: 0,
@@ -27,6 +28,7 @@ class Tool extends Component {
     this.stopTimer = this.stopTimer.bind(this);
     this.submitPoint = this.submitPoint.bind(this);
     this.submitFullPoint = this.submitFullPoint.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
@@ -71,10 +73,11 @@ class Tool extends Component {
 
     let point = {
       team1: this.state.team1DataPoints,
-      team2: this.state.team2DataPoints
+      team2: this.state.team2DataPoints,
+      winner: this.state.winner
     }
     this.props.addPointToMatch(point);
-    this.setState({team1DataPoints: [], team2DataPoints: []});
+    this.setState({team1DataPoints: [], team2DataPoints: [], winner: ''});
   }
 
   startTimer() {
@@ -106,6 +109,10 @@ class Tool extends Component {
     e.preventDefault();
     this.setState({result : e.target.name});
   }
+
+  onChange(e){
+    this.setState({[e.target.name] : e.target.value})
+  }
   render() {
     const team1 = this.props.team1;
     const team2 = this.props.team2;
@@ -122,11 +129,17 @@ class Tool extends Component {
           <div className="Text-center">
             <button className="btn btn-lg btn-default" onClick={this.submitFullPoint}>Submit Point</button>
             <button className="btn btn-lg btn-default" onClick={this.props.postMatchToServer}>Submit Match</button>
+            <h3>Winner</h3>
+            <select onChange={this.onChange} name="winner" className="form-control">
+              <option>Winner</option>
+              <option value={team1.name}>{team1.name}</option>
+              <option value={team2.name}>{team2.name}</option>
+            </select>
           </div>
         </div>
         <div className="row">
           <div className="col-md-2">
-            <h4 className="text-center">Team 1</h4>
+            <h4 className="text-center">{team1.name}</h4>
             <div className="list-group">
               {Object.keys(team1.players).map((player) =>
                 <a href="#"
@@ -135,13 +148,13 @@ class Tool extends Component {
                   onClick={this.selectPlayer}
                   className={"list-group-item " + (this.state.activePlayer === player ? 'active' : '')}
                   name={player}>
-                  {team1.players[player].name}
+                  {team1.players[player].name} - {team1.players[player].number ? team1.players[player].number : '' }
                 </a>
               )}
             </div>
           </div>
           <div className="col-md-2">
-            <h4 className="text-center">Team 2</h4>
+            <h4 className="text-center">{team2.name}</h4>
             <div className="list-group">
               {Object.keys(team2.players).map((player) =>
                 <a href="#"
@@ -150,7 +163,7 @@ class Tool extends Component {
                   id={team2.name}
                   className={"list-group-item " + (this.state.activePlayer === player ? 'active' : '')}
                   name={player}>
-                  {team2.players[player].name}
+                  {team2.players[player].name} - {team2.players[player].number ? team2.players[player].number : '' }
                 </a>
               )}
             </div>
